@@ -34,10 +34,7 @@ export class BookService extends BaseResponse {
         year,
       });
 
-      return {
-        status: 'Success',
-        message: 'Berhasil Menyimpan Buku',
-      };
+      return this._success('Berhasil Menyimpan Data');
     } catch (err) {
       throw new HttpException('Ada kesalahan', HttpStatus.BAD_REQUEST);
     }
@@ -72,17 +69,7 @@ export class BookService extends BaseResponse {
       take: pageSize,
     });
 
-    return {
-      status: 'Success',
-      message: 'List Buku ditermukan',
-      data: result,
-      pagination: {
-        total,
-        page,
-        pageSize,
-        totalPage: Math.ceil(total / Number(pageSize)),
-      },
-    };
+    return this._pagination('OK', result, total, page, pageSize);
   }
 
   async getDetail(id: number): Promise<ResponseSuccess> {
@@ -95,11 +82,7 @@ export class BookService extends BaseResponse {
     if (detailBook === null) {
       throw new NotFoundException(`Buku dengan id ${id} tidak ditemukan`);
     }
-    return {
-      status: 'Success',
-      message: 'Detail Buku ditermukan',
-      data: detailBook,
-    };
+    return this._success('Berhasil Mendapatkan Buku', detailBook);
   }
 
   async updateBook(
@@ -116,11 +99,8 @@ export class BookService extends BaseResponse {
       throw new NotFoundException(`Buku dengan id ${id} tidak ditemukan`);
 
     const update = await this.bookRepo.save({ ...updateBookDto, id: id });
-    return {
-      status: `Success `,
-      message: 'Buku berhasil di update',
-      data: update,
-    };
+
+    return this._success('Berhasil MengUpdate Data', update);
   }
 
   async deleteBook(id: number): Promise<ResponseSuccess> {
@@ -132,11 +112,10 @@ export class BookService extends BaseResponse {
 
     if (!check)
       throw new NotFoundException(`Buku dengan id ${id} tidak ditemukan`);
+
     await this.bookRepo.delete(id);
-    return {
-      status: `Success `,
-      message: 'Berhasil menghapus buku',
-    };
+
+    return this._success('Berhasil Menghapus Buku');
   }
 
   async bulkCreate(payload: createBookArrayDto): Promise<ResponseSuccess> {
