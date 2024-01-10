@@ -8,41 +8,38 @@ import {
   OneToMany,
 } from 'typeorm';
 import { User } from '../auth/auth.entity';
-import { Kategori } from '../kategori/kategori.entity';
+import { Konsumen } from '../konsumen/konsumen.entity';
 import { OrderDetail } from '../order_detail/order_detail.entity';
 
+export enum Status {
+  BAYAR = 'bayar',
+  BELUM = 'belum bayar',
+}
+
 @Entity()
-export class Produk extends BaseEntity {
+export class Order extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column({ nullable: false })
-  barcode: string;
-
-  @ManyToOne(() => Kategori)
-  @JoinColumn({ name: 'kategori_id' })
-  kategori: Kategori;
+  nomor_order: string;
 
   @Column({ nullable: false })
-  nama_produk: string;
+  tanggal_order: Date;
 
-  @Column({ type: 'text', nullable: false })
-  deskripsi_produk: string;
+  @Column({
+    type: 'enum',
+    enum: Status,
+    default: Status.BELUM,
+  })
+  status: Status;
 
   @Column({ type: 'double', precision: 18, scale: 2, nullable: false })
-  harga: number;
+  total_bayar: number;
 
-  @Column()
-  stok: number;
-
-  @Column({ nullable: true })
-  foto: string;
-
-  @OneToMany(() => OrderDetail, (v) => v.produk, {
-    onDelete: 'CASCADE',
-    cascade: ['insert', 'update'],
-  })
-  order_detail: OrderDetail[];
+  @ManyToOne(() => Konsumen, (v) => v.order, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'konsumen_id' })
+  konsumen: Konsumen;
 
   @ManyToOne(() => User)
   @JoinColumn({ name: 'created_by' })
@@ -51,6 +48,12 @@ export class Produk extends BaseEntity {
   @ManyToOne(() => User)
   @JoinColumn({ name: 'updated_by' })
   updated_by: User;
+
+  @OneToMany(() => OrderDetail, (v) => v.order, {
+    onDelete: 'CASCADE',
+    cascade: ['insert', 'update'],
+  })
+  order_detail: OrderDetail[];
 
   @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;

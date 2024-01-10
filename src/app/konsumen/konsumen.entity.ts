@@ -6,7 +6,9 @@ import {
   Column,
   ManyToOne,
   JoinColumn,
+  OneToMany,
 } from 'typeorm';
+import { Order } from '../order/order.entity';
 
 @Entity()
 export class Konsumen extends BaseEntity {
@@ -24,6 +26,12 @@ export class Konsumen extends BaseEntity {
 
   @Column({ nullable: false })
   nomor_handphone: string;
+
+  @OneToMany(() => Order, (v) => v.konsumen, {
+    onDelete: 'CASCADE',
+    cascade: ['insert', 'update'],
+  })
+  order: Order[];
 
   @ManyToOne(() => User)
   @JoinColumn({ name: 'created_by' })
