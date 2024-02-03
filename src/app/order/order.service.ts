@@ -12,6 +12,7 @@ import { Order } from './order.entity';
 import { ResponsePagination, ResponseSuccess } from 'src/interface/response';
 import { CreateOrderDto, UpdateOrderDto, findAllOrderDto } from './order.dto';
 import { REQUEST } from '@nestjs/core';
+import { Workbook } from 'exceljs';
 
 @Injectable()
 export class OrderService extends BaseResponse {
@@ -221,5 +222,83 @@ export class OrderService extends BaseResponse {
     await this.orderRepository.delete(id);
 
     return this._success('Berhasil menghapus buku');
+  }
+
+  async pdfReport(query: findAllOrderDto, res: any): Promise<any> {
+    const result = await this.findAll(query);
+
+    try {
+      const workbook = new Workbook();
+      const worksheet = workbook.addWorksheet('Laporan');
+      worksheet.columns = [
+        { header: 'No.', key: 'no', width: 10 },
+        { header: 'Nomor Order', key: 'nomor_order', width: 20 },
+        { header: 'Tanggal Order', key: 'tanggal_order', width: 20 },
+        { header: 'Nama Produk', key: 'nama_produk', width: 20 },
+        { header: 'Jumlah', key: 'jumlah', width: 20 },
+        { header: 'Harga', key: 'harga', width: 20 },
+        { header: 'Nama Konsumen', key: 'nama_konsumen', width: 20 },
+        { header: 'Total Bayar', key: 'total_bayar', width: 20 },
+        { header: 'Dibuat oleh', key: 'created_by', width: 20 },
+        { header: 'Diperbaharui oleh', key: 'updated_by', width: 20 },
+      ];
+
+      const merge: { start: number; finish: number }[] = [];
+
+      let col = 1;
+      result.data.forEach((item) => {
+        if (item.order_detail.length >= 1) {
+          merge.push({
+            start: col + 1,
+            finish: col + item.order_detail.length,
+          });
+          item.order_detail.map((order) => {
+            col = col + 1;
+            worksheet.addRow({
+              no: col - 1,
+              nomor_order: item.nomor_order,
+              tanggal_order: item.tanggal_order,
+              nama_produk: order.produk.nama_produk,
+              jumlah: order.jumlah,
+              harga: order.produk.harga,
+              nama_konsumen: item.konsumen.nama_konsumen,
+              total_bayar: 12000,
+              created_by: item?.created_by?.nama,
+              updated_by: item?.updated_by?.nama,
+            });
+          });
+        } else {
+          col = col + 1;
+          worksheet.addRow({
+            no: col - 1,
+            nomor_order: item.nomor_order,
+            tanggal_order: item.tanggal_order,
+            nama_produk: '',
+            jumlah: 0,
+            harga: 0,
+            nama_konsumen: item.konsumen.nama_konsumen,
+            total_bayar: 12000,
+            created_by: item?.created_by?.nama,
+            updated_by: item?.updated_by?.nama,
+          });
+        }
+      });
+
+      merge.forEach((item) => {
+        worksheet.mergeCells(item.start, 8, item.finish, 8);
+      });
+
+      res.setHeader(
+        'Content-Type',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      );
+
+      return workbook.xlsx.write(res).then(function () {
+        res.status(200).end();
+      });
+    } catch (err) {
+      console.log('err', err);
+      throw new HttpException('Ada Kesalahan', HttpStatus.BAD_REQUEST);
+    }
   }
 }

@@ -15,6 +15,7 @@ import { KonsumenModule } from './app/konsumen/konsumen.module';
 import { UniqueValidator } from './utils/validator/unique.validator';
 import { OrderModule } from './app/order/order.module';
 import { OrderDetailModule } from './app/order_detail/order_detail.module';
+import { ProfileModule } from './app/profile/profile.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { OrderDetailModule } from './app/order_detail/order_detail.module';
     KonsumenModule,
     OrderModule,
     OrderDetailModule,
+    ProfileModule,
   ],
   controllers: [AppController, UploadController],
   providers: [AppService, UniqueValidator],

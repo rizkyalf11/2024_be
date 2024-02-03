@@ -5,6 +5,7 @@ import {
   Param,
   Post,
   Put,
+  Res,
   UseGuards,
 } from '@nestjs/common';
 import { OrderService } from './order.service';
@@ -45,5 +46,13 @@ export class OrderController {
   @Delete('delete/:id')
   async deleteOrder(@Param('id') id: number) {
     return this.orderService.deleteOrder(+id);
+  }
+
+  @Get('download-report-excel')
+  async excelReport(
+    @Res() res: Response,
+    @Pagination() query: findAllOrderDto,
+  ) {
+    return this.orderService.pdfReport(query, res);
   }
 }

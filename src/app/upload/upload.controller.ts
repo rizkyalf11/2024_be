@@ -28,7 +28,7 @@ export class UploadController extends BaseResponse {
       storage: diskStorage({
         destination: 'public/uploads',
         filename: (req, file, cb) => {
-          console.log(file.originalname.split('.'));
+          console.log('fl', file);
           const fileExtension = file.originalname.split('.').pop();
           cb(null, `${new Date().getTime()}.${fileExtension}`);
         },
@@ -39,6 +39,7 @@ export class UploadController extends BaseResponse {
   async uploadFile(
     @UploadedFiles() files: Express.Multer.File[],
   ): Promise<ResponseSuccess> {
+    console.log(files);
     try {
       const file_response: Array<{
         file_url: string;
@@ -60,6 +61,7 @@ export class UploadController extends BaseResponse {
         file: file_response,
       });
     } catch (err) {
+      console.log(err);
       throw new HttpException('Ada Kesalahan', HttpStatus.BAD_REQUEST);
     }
   }

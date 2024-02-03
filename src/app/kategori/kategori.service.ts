@@ -100,8 +100,15 @@ export class KategoriService extends BaseResponse {
 
       await Promise.all(
         payload.data.map(async (data) => {
+          const dataSave = {
+            ...data,
+            created_by: {
+              id: this.req.user.id,
+            },
+          };
+
           try {
-            await this.kategoriRepo.save(data);
+            await this.kategoriRepo.save(dataSave);
 
             berhasil += 1;
           } catch (error) {

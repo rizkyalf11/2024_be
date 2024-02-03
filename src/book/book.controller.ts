@@ -25,7 +25,7 @@ export class BookController {
     return this.bookService.createBook(payload);
   }
 
-  @Get('/get-all')
+  @Get('/list')
   getAllBooks(@Pagination() findBookDto: FindBookDto) {
     return this.bookService.getAllBooks(findBookDto);
   }
