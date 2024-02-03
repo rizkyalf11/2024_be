@@ -122,6 +122,9 @@ export class AuthService extends BaseResponse {
       },
     });
 
+    console.log(user);
+    console.log(id);
+
     return this._success('OK', user);
   }
 
